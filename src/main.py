@@ -32,21 +32,41 @@ def printBoard(board, shift: bool = False):
 
 # Calculate the distance between two keys on a keyboard.
 def charDistance(board, startKey, endKey):
-    x = 0
-    y = 0
+    x1 = -1
+    y1 = -1
+    x2 = -1
+    y2 = -1
+    # Find the x and y coordinates of the start key and end key
     for row in range(len(board)):
-        tempX = 0
-        tempY = 0
-        for key in board[row][0]:
-            if endKey == key:
-                break
-
-    return math.sqrt((x - tempX)**2 + (y - tempY)**2)
+        if x1 + y1 != -2 and x2 + y2 != -2:
+            break
+        if startKey in board[row][0]:
+            x1 = board[row][0].index(startKey)
+            y1 = row
+        elif startKey in board[row][1]:
+            x1 = board[row][1].index(startKey)
+            y1 = row
+        if endKey in board[row][0]:
+            x2 = board[row][0].index(endKey)
+            y2 = row
+        elif endKey in board[row][1]:
+            x2 = board[row][1].index(endKey)
+            y2 = row
+    AOS = .3 # Average Offset Size
+    if y1 > 0:
+        x1 += 0.5
+        x1 += (y1 - 1) * AOS
+    if y2 > 0:
+        x2 += 0.5
+        x2 += (y2 - 1) * AOS
+    return round(math.dist([x1, y1], [x2, y2]), bitLearning)
 
 
 # Calculate the total distance to type out a string on a keyboard.
 def calcDistance(board, text: str):
     distance = 0
+    for letter in text:
+        l = 1
     return distance
 
 
@@ -56,5 +76,8 @@ keyboard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], 
             [list("asdfghjkl;'"), list("ASDFGHJKL:\"")],
             [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]
 
+bitLearning = 5
+
 printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
+print(charDistance(board=keyboard, startKey="a", endKey="0"))
 print(calcDistance(board=keyboard, text="qwertyuiop")) # Prints the distance to type out "qwertyuiop" with a QWERTY keyboard
