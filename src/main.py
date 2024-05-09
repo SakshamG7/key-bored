@@ -14,10 +14,14 @@ def printBoard(board, shift: bool = False):
     outputs = ["", ""]
     for row in range(len(board)):
         outputs[0] += "\n" + " " * (row + row//len(board))
+        if row > 0:
+            outputs[0] += "  "
         for key in board[row][0]:
             outputs[0] += key + " "
         if shift:
             outputs[1] += "\n" + " " * (row + row//len(board))
+            if row > 0:
+                outputs[1] += "  "
             for key in board[row][1]:
                 outputs[1] += key + " "
     print("-"*10)
@@ -63,11 +67,13 @@ def charDistance(board, startKey, endKey) -> int:
 
 
 # Calculate the total distance to type out a string on a keyboard.
-def calcDistance(board, text: str, home_keys: list = ["a", "s", "d", "f", "j", "k", "l", ";"]) -> int:
+def calcDistance(board, text: str, home_keys: list = ["a", "s", "d", "f", "j", "k", "l", ";"], debug: bool = False) -> int:
     distance = 0
     cur_keys = home_keys.copy()
 
     for letter in text:
+        if letter in (" ", "\t", "\n"):
+            continue
         smallest = [1000000, -1]
         for cur_key in range(len(cur_keys)):
             new_smallest = charDistance(board=board, startKey=home_keys[cur_key], endKey=letter)
@@ -75,7 +81,8 @@ def calcDistance(board, text: str, home_keys: list = ["a", "s", "d", "f", "j", "
                 smallest[0] = new_smallest
                 smallest[1] = cur_key
         smallest[0] = charDistance(board=board, startKey=cur_keys[smallest[1]], endKey=letter)
-        print(cur_keys[smallest[1]], " finger is now on ", letter, ". Distance: ", smallest[0])
+        if debug:
+            print(cur_keys[smallest[1]], " finger is now on ", letter, ". Distance: ", smallest[0])
         cur_keys[smallest[1]] = letter
         distance += smallest[0]
 
@@ -92,4 +99,7 @@ bitLearning = 5
 
 printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
 print(charDistance(board=keyboard, startKey="q", endKey="a"))
-print(calcDistance(board=keyboard, text="qqqwqqq")) # Prints the distance to type out "qwertyuiop" with a QWERTY keyboard
+# print(calcDistance(board=keyboard, text="qwertyuiop[]\\", debug=True)) # Prints the distance to type out "qwertyuiop[]\" with a QWERTY keyboard
+# print(calcDistance(board=keyboard, text="asdfghjkl;'", debug=True))
+# print(calcDistance(board=keyboard, text="zxcvbnm,./", debug=True))
+# print(calcDistance(board=keyboard, text="`1234567890-=`", debug=True))
