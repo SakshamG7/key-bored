@@ -58,10 +58,10 @@ def charDistance(board, startKey, endKey) -> int:
             y2 = row
     AOS = .3 # Average Offset Size
     if y1 > 0:
-        x1 += 0.5
+        x1 += 1
         x1 += (y1 - 1) * AOS
     if y2 > 0:
-        x2 += 0.5
+        x2 += 1
         x2 += (y2 - 1) * AOS
     return round(math.dist([x1, y1], [x2, y2]), bitLearning)
 
@@ -102,4 +102,4 @@ print(charDistance(board=keyboard, startKey="q", endKey="a"))
 # print(calcDistance(board=keyboard, text="qwertyuiop[]\\", debug=True)) # Prints the distance to type out "qwertyuiop[]\" with a QWERTY keyboard
 # print(calcDistance(board=keyboard, text="asdfghjkl;'", debug=True))
 # print(calcDistance(board=keyboard, text="zxcvbnm,./", debug=True))
-# print(calcDistance(board=keyboard, text="`1234567890-=`", debug=True))
+print(calcDistance(board=keyboard, text="`1234567890-=`", debug=True))
