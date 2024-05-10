@@ -136,5 +136,12 @@ printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
 printBoard(dvorakBoard, shift=True) # Prints the entire Dvorak keyboard
 
 # Calculate the distance of the datatext for both QWERTY and Dvorak
-print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=True))
-print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=True)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
+print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False))
+print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
+
+
+# The genetic algorithm to find the optimal keyboard layout
+def geneticAlgorithm(): # TODO: Implement the genetic algorithm soon
+    population_size = 10
+    generations = 10
+    mutation_rate = 0.01
