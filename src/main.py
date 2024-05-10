@@ -8,6 +8,7 @@
 # Imports
 import random
 import math
+import os
 
 # Print the keyboard in a readable format. Shift is optional.
 def printBoard(board, shift: bool = False):
@@ -36,6 +37,9 @@ def printBoard(board, shift: bool = False):
 
 # Calculate the distance between two keys on a keyboard.
 def charDistance(board, startKey, endKey) -> int:
+    global boardCache
+    if startKey + " " + endKey in boardCache:
+        return boardCache[startKey + " " + endKey]
     x1 = -1
     y1 = -1
     x2 = -1
@@ -63,7 +67,10 @@ def charDistance(board, startKey, endKey) -> int:
     if y2 > 0:
         x2 += 1
         x2 += (y2 - 1) * AOS
-    return round(math.dist([x1, y1], [x2, y2]), bitLearning)
+    dist = round(math.dist([x1, y1], [x2, y2]), bitLearning)
+    boardCache[startKey + " " + endKey] = dist
+    boardCache[endKey + " " + startKey] = dist
+    return dist
 
 
 # Calculate the total distance to type out a string on a keyboard.
@@ -89,17 +96,35 @@ def calcDistance(board, text: str, home_keys: list = ["a", "s", "d", "f", "j", "
     return round(distance, bitLearning)
 
 
+# Read all the datasets in the `dataset` folder, program must be run outside the src folder.
+def readDatasets() -> str:
+    output = ""
+    for filename in os.listdir("dataset/"):
+        if filename.lower().endswith(".txt"):
+            with open("dataset/" + filename, "r") as f:
+                output += f.read()
+            output += "\n"
+    return output
+
+
 # the keyboard tensor with shift
 keyboard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], list("~!@#$%^&*()_+")],
             [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],
             [list("asdfghjkl;'"), list("ASDFGHJKL:\"")],
             [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]
 
+dvorakBoard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '[', ']'], list("~!@#$%^&*(){}")],
+                [list("',.pyfgcrl/="), list('"<.PYFGCRL?+')],
+                [list("aoeuidhtns-"), list("AOEUIDHTNS_")],
+                [list(";qjkxbmwvz"), list(":QJKXBMWVZ")]]
+dvorakHomeKeys = list("aoeuhtns")
+# Important global variables
 bitLearning = 5
+boardCache = {}
 
 printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
-print(charDistance(board=keyboard, startKey="q", endKey="a"))
-# print(calcDistance(board=keyboard, text="qwertyuiop[]\\", debug=True)) # Prints the distance to type out "qwertyuiop[]\" with a QWERTY keyboard
-# print(calcDistance(board=keyboard, text="asdfghjkl;'", debug=True))
-# print(calcDistance(board=keyboard, text="zxcvbnm,./", debug=True))
-print(calcDistance(board=keyboard, text="`1234567890-=`", debug=True))
+printBoard(dvorakBoard, shift=True) # Prints the entire Dvorak keyboard
+
+# Calculate the distance of the datatext for both QWERTY and Dvorak
+print(calcDistance(board=keyboard, text=readDatasets(), debug=False))
+print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
