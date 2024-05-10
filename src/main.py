@@ -93,7 +93,16 @@ def calcDistance(board, text: str, home_keys: list = ["a", "s", "d", "f", "j", "
             print(cur_keys[smallest[1]], " finger is now on ", letter, ". Distance: ", smallest[0])
         cur_keys[smallest[1]] = letter
         distance += smallest[0]
-    print(boardCache)
+    if debug:
+        totalD = 0
+        c = 0
+        for d in boardCache.values():
+            if d == 0:
+                continue
+            totalD += d
+            c += 1
+        print("Average Key Distance:", round(totalD/c, bitLearning))
+        print("Total Distance:", round(distance, bitLearning))
 
     return round(distance, bitLearning)
 
@@ -127,5 +136,5 @@ printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
 printBoard(dvorakBoard, shift=True) # Prints the entire Dvorak keyboard
 
 # Calculate the distance of the datatext for both QWERTY and Dvorak
-print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False))
-print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
+print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=True))
+print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=True)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
