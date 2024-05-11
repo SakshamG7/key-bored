@@ -220,13 +220,13 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
 
     return board # Return the keyboard layout with its shape
 
-
+# TODO: Function does not work as expected, fix asap
 # Mutates the given keyboard layout based on the mutation rate
-def mutateKeyboard(board, mutation_rate: float = 0.01):
+def mutateKeyboard(board, mutation_rate: float = 0.1):
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
     # Keeps alternating columns of the keyboard layout and the rest changes due to mutation rate
     for row in range(len(board[0])):
-        for key in range(len(board[0][row][0], 2)):
+        for key in range(len(board[0][row][0]), 2):
             if random.random() < mutation_rate:
                 temp = board[0][row][0][key]
                 board[0][row][0][key] = board[0][row][1][key]
@@ -244,14 +244,18 @@ def mutateKeyboard(board, mutation_rate: float = 0.01):
 
 # The genetic algorithm to find the optimal keyboard layout
 # TODO: Add penalty for 2 hands not alternating. - Complicated but possible
-def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.01): # TODO: Implement the genetic algorithm soon
+def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.1): # TODO: Implement the genetic algorithm soon
     population = []
-    performance = []
+    performance = [] # The lower cost in distance the better the performance
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
 
-    # Create the initial population based on selected parameters
+    bestBoard = [[], [], []]
+    bestScore = 1000000000000000
+
+    # Create and print the initial population based on selected parameters
     for _ in range(population_size):
         population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape))
+        printBoard(population[-1][0], shift=True)
 
     # Initial test of the population
     print("Initial Population")
@@ -259,10 +263,33 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
         board = population[boardNumber]
         performance.append(calcDistance(board=board[0], home_keys=board[2], text=readDatasets(), debug=False))
         print("Keyboard #", boardNumber + 1, ":", performance[-1])
+        # Update the best board
+        if performance[-1] < bestScore:
+            bestBoard = board
+            bestScore = performance[-1]
 
-    # Prints the initial population
-    # for board in population:
-    #     printBoard(board[0], shift=True)
+    # Run a basic genetic algorithm for the given number of generations
+    for generation in range(generations):
+        print("Generation #", generation + 1)
+        for boardNumber in range(len(population)):
+            board = population[boardNumber]
+            population[boardNumber] = mutateKeyboard(board, mutation_rate=mutation_rate)
+            printBoard(population[boardNumber][0], shift=True)
+        print("Performance")
+        for boardNumber in range(len(population)):
+            board = population[boardNumber]
+            performance[boardNumber] = calcDistance(board=board[0], home_keys=board[2], text=readDatasets(), debug=False)
+            print("Keyboard #", boardNumber + 1, ":", performance[boardNumber])
+    
+    # Print the best board
+    print("-"*20)
+    print("Best Keyboard Found #" + str(population.index(bestBoard) + 1) + ":")
+    print("Performance / Distance:", bestScore)
+    printBoard(bestBoard[0], shift=True)
+    print("-"*20)
 
 
-geneticAlgorithm(shapeOptimal=False) # Run the genetic algorithm to find the optimal keyboard layout
+# geneticAlgorithm() # Run the genetic algorithm to find the optimal keyboard layout
+
+# test mutateKeyboard() by mutating the QWERTY keyboard layout
+printBoard(mutateKeyboard(board=keyboard, mutation_rate=1), shift=True)
