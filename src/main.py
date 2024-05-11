@@ -118,7 +118,7 @@ def readDatasets() -> str:
     return output
 
 
-# the keyboard tensor with shift
+# the keyboard tensor with shift, also an important global variable
 keyboard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], list("~!@#$%^&*()_+")],
             [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],
             [list("asdfghjkl;'"), list("ASDFGHJKL:\"")],
@@ -140,34 +140,47 @@ print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets()
 print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
 
 
-# The genetic algorithm to find the optimal keyboard layout
-def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.01): # TODO: Implement the genetic algorithm soon
-    population = []
-    mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
+# Creates a random keyboard layout based on the given parameters
+def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]):
+    # Initialize the keyboard layout and the 2d array of the keyboard layout
+    board = [[], []]
+    keyboard_2d = []
+    keyboard_2d_shift = []
 
-    # Create initial population of random keyboard layouts starting with QWERTY layout
-    for _ in range(population_size):
-        population.append([keyboard.copy(), shape.copy()])
-        # breaks the keyboard shape and creates a 2d array of the keyboard layout
-        keyboard_2d = []
-        keyboard_2d_shift = []
-        for row in range(len(population[-1][0])):
-            keyboard_2d += population[-1][0][row][0]
-            keyboard_2d_shift += population[-1][0][row][1]
-        if shiftedOptimal: # If we want to optimize the shifted layout as well
-            random.shuffle(keyboard_2d)
-            random.shuffle(keyboard_2d_shift)
-        else: # If we don't want to optimize the shifted layout and keep it aligned with the non-shifted layout
-            temp_non_shift = keyboard_2d.copy()
-            temp_shift = keyboard_2d_shift.copy()
-            random.shuffle(keyboard_2d)
-            for key in range(len(keyboard_2d)):
-                temp_shift[key] = keyboard_2d_shift[temp_non_shift.index(keyboard_2d[key])]
-            keyboard_2d_shift = temp_shift.copy()
+    # breaks the given keyboard shape and creates a 2d array of the keyboard layout, [defaults to QWERTY if not given]
+    for row in range(len(keyboard)):
+        keyboard_2d += keyboard[row][0]
+        keyboard_2d_shift += keyboard[row][1]
 
-        # Creates a random shape of the keyboard layout
-        if shapeOptimal: # TODO: Optimize the creation of the shape of the keyboard layout to be more efficient (lazy implementation_
-            total = sum(shape)
+    if shiftedOptimal: # If we want to optimize the shifted layout as well, we shuffle both the non-shifted and shifted layout
+        random.shuffle(keyboard_2d)
+        random.shuffle(keyboard_2d_shift)
+    else: # If we don't want to optimize the shifted layout and keep it aligned with the non-shifted layout
+        temp_non_shift = keyboard_2d.copy() # Create a temporary copy of the non-shifted layout
+        temp_shift = keyboard_2d_shift.copy() # Create a temporary copy of the shifted layout
+        random.shuffle(keyboard_2d) # Shuffle the non-shifted layout
+        for key in range(len(keyboard_2d)): # Align the shifted layout with the non-shifted layout
+            temp_shift[key] = keyboard_2d_shift[temp_non_shift.index(keyboard_2d[key])]
+        keyboard_2d_shift = temp_shift.copy() # Update the shifted layout with the aligned layout
+
+    # Creates a random shape of the keyboard layout
+    if shapeOptimal: # TODO: Optimize the creation of the shape of the keyboard layout to be more efficient (lazy implementation_
+        total = sum(shape) # Calculate the total number of keys in the keyboard layout
+        # Starting values for the shape of the keyboard layout
+        shapeY = random.randint(1, total)
+        shapeX = 0
+        shapeXs = []
+
+        # Figure out the number of keys in each row of the keyboard layout
+        for _ in range(shapeY):
+            if shapeX > total or (total - shapeX) <= 1:
+                shapeXs.append(1)
+                shapeX += 1
+            else:
+                shapeXs.append(random.randint(1, total - shapeX))
+                shapeX += shapeXs[-1]
+        # Make sure the shape of the keyboard layout is correct
+        while sum(shapeXs) != total:
             shapeY = random.randint(1, total)
             shapeX = 0
             shapeXs = []
@@ -178,30 +191,53 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
                 else:
                     shapeXs.append(random.randint(1, total - shapeX))
                     shapeX += shapeXs[-1]
-            while sum(shapeXs) != total:
-                shapeY = random.randint(1, total)
-                shapeX = 0
-                shapeXs = []
-                for _ in range(shapeY):
-                    if shapeX > total or (total - shapeX) <= 1:
-                        shapeXs.append(1)
-                        shapeX += 1
-                    else:
-                        shapeXs.append(random.randint(1, total - shapeX))
-                        shapeX += shapeXs[-1]
-            shape = shapeXs
-        # Reconstruct the keyboard layout in to shape form
-        population[-1][0] = []
-        y = 0
-        for x in shape:
-            population[-1][0].append([[], []])
-            for _ in range(x):
-                population[-1][0][y][0].append(keyboard_2d[0])
-                keyboard_2d.pop(0)
-                population[-1][0][y][1].append(keyboard_2d_shift[0])
-                keyboard_2d_shift.pop(0)
-            y += 1
+        # Update the shape of the keyboard layout from the given/default shape
+        shape = shapeXs
+    # Reconstruct the keyboard layout in to shape form
+    y = 0 # Row index
+    for x in shape:
+        board[0].append([[], []]) # Add a new row to the keyboard layout, [<non-shifted-list>, <shifted-list>]
+        for _ in range(x):
+            board[0][y][0].append(keyboard_2d[0]) # Add the non-shifted key to the keyboard layout
+            keyboard_2d.pop(0)
+            board[0][y][1].append(keyboard_2d_shift[0]) # Add the shifted key to the keyboard layout
+            keyboard_2d_shift.pop(0)
+        # Update the row index
+        y += 1
+    return board # Return the keyboard layout with its shape
 
+
+# Mutates the given keyboard layout based on the mutation rate
+def mutateKeyboard(board, mutation_rate: float = 0.01):
+    mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
+    # Keeps alternating columns of the keyboard layout and the rest changes due to mutation rate
+    for row in range(len(board[0])):
+        for key in range(len(board[0][row][0], 2)):
+            if random.random() < mutation_rate:
+                temp = board[0][row][0][key]
+                board[0][row][0][key] = board[0][row][1][key]
+                board[0][row][1][key] = temp
+    
+    # Keeps alternating rows of the keyboard layout and the rest changes due to mutation rate
+    for row in range(len(board[0])):
+        if random.random() < mutation_rate:
+            temp = board[0][row]
+            board[0][row] = board[0][row + 1]
+            board[0][row + 1] = temp
+
+    return board # Return new the mutated keyboard layout
+
+
+# The genetic algorithm to find the optimal keyboard layout
+def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.01): # TODO: Implement the genetic algorithm soon
+    population = []
+    mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
+
+    # Create the initial population based on selected parameters
+    for _ in range(population_size):
+        population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape))
+
+    # Prints the initial population
     for board in population:
         printBoard(board[0], shift=True)
 
