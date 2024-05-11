@@ -141,9 +141,9 @@ print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDataset
 
 
 # Creates a random keyboard layout based on the given parameters
-def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]):
+def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]], home_keys_cordinates: list = [[2, 0], [2, 1], [2, 2], [2, 3], [2, 6], [2, 7], [2, 8], [2, 9]]):
     # Initialize the keyboard layout and the 2d array of the keyboard layout
-    board = [[], []]
+    board = [[], [], []]
     keyboard_2d = []
     keyboard_2d_shift = []
 
@@ -193,6 +193,15 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
                     shapeX += shapeXs[-1]
         # Update the shape of the keyboard layout from the given/default shape
         shape = shapeXs
+        # Updates the home keys cordinates based on the new shape randomly
+        home_keys_cordinates = []
+        for _ in range(len(shape)):
+            home_keys_cordinates.append([random.randint(0, shape[_] - 1), _])
+            home_keys_cordinates[-1][0] = random.randint(0, shape[-1] - 1)
+
+    # Update the shape of the board
+    board[1] = shape.copy()
+    
     # Reconstruct the keyboard layout in to shape form
     y = 0 # Row index
     for x in shape:
@@ -204,6 +213,11 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
             keyboard_2d_shift.pop(0)
         # Update the row index
         y += 1
+    
+    # Convert home keys cordinates to home keys of the keyboard layout
+    for key in home_keys_cordinates:
+        board[2].append(board[0][key[0]][0][key[1]]) # Add the home key to the home keys of the keyboard layout
+
     return board # Return the keyboard layout with its shape
 
 
@@ -229,6 +243,7 @@ def mutateKeyboard(board, mutation_rate: float = 0.01):
 
 
 # The genetic algorithm to find the optimal keyboard layout
+# TODO: Add penalty for 2 hands not alternating. - Complicated but possible
 def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.01): # TODO: Implement the genetic algorithm soon
     population = []
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
@@ -237,9 +252,13 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     for _ in range(population_size):
         population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape))
 
-    # Prints the initial population
+    # Initial test of the population
     for board in population:
-        printBoard(board[0], shift=True)
+        print(calcDistance(board=board[0], home_keys=board[2], text=readDatasets(), debug=False))
+
+    # Prints the initial population
+    # for board in population:
+    #     printBoard(board[0], shift=True)
 
 
 geneticAlgorithm(shapeOptimal=False) # Run the genetic algorithm to find the optimal keyboard layout
