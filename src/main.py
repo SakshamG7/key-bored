@@ -312,7 +312,7 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     for generation in range(generations):
         print("Generation #", generation + 1)
         for boardNumber in range(len(population)):
-            population[boardNumber] = mutateKeyboard(population[boardNumber], mutation_rate=mutation_rate)
+            population[boardNumber] = mutateKeyboard(bestBoard, mutation_rate=mutation_rate)
             # printBoard(population[boardNumber][0], shift=True)
         print("Performance")
         for boardNumber in range(len(population)):
@@ -333,4 +333,4 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     print("-"*20)
 
 
-geneticAlgorithm() # Run the genetic algorithm to find the optimal keyboard layout
+geneticAlgorithm(population_size=50, generations=100, mutation_rate=0.1) # Run the genetic algorithm to find the optimal keyboard layout
