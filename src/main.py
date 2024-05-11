@@ -201,7 +201,7 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
 
     # Update the shape of the board
     board[1] = shape.copy()
-    
+
     # Reconstruct the keyboard layout in to shape form
     y = 0 # Row index
     for x in shape:
@@ -246,6 +246,7 @@ def mutateKeyboard(board, mutation_rate: float = 0.01):
 # TODO: Add penalty for 2 hands not alternating. - Complicated but possible
 def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.01): # TODO: Implement the genetic algorithm soon
     population = []
+    performance = []
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
 
     # Create the initial population based on selected parameters
@@ -253,8 +254,11 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
         population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape))
 
     # Initial test of the population
-    for board in population:
-        print(calcDistance(board=board[0], home_keys=board[2], text=readDatasets(), debug=False))
+    print("Initial Population")
+    for boardNumber in range(population_size):
+        board = population[boardNumber]
+        performance.append(calcDistance(board=board[0], home_keys=board[2], text=readDatasets(), debug=False))
+        print("Keyboard #", boardNumber + 1, ":", performance[-1])
 
     # Prints the initial population
     # for board in population:
