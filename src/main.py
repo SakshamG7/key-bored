@@ -119,28 +119,6 @@ def readDatasets() -> str:
     return output
 
 
-# the keyboard tensor with shift, also an important global variable
-keyboard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], list("~!@#$%^&*()_+")],
-            [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],
-            [list("asdfghjkl;'"), list("ASDFGHJKL:\"")],
-            [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]
-
-dvorakBoard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '[', ']'], list("~!@#$%^&*(){}")],
-                [list("',.pyfgcrl/="), list('"<.PYFGCRL?+')],
-                [list("aoeuidhtns-"), list("AOEUIDHTNS_")],
-                [list(";qjkxbmwvz"), list(":QJKXBMWVZ")]]
-dvorakHomeKeys = list("aoeuhtns")
-# Important global variables
-bitLearning = 5
-
-printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
-printBoard(dvorakBoard, shift=True) # Prints the entire Dvorak keyboard
-
-# Calculate the distance of the datatext for both QWERTY and Dvorak
-print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False))
-print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
-
-
 # Creates a random keyboard layout based on the given parameters
 def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]], home_keys_cordinates: list = [[2, 0], [2, 1], [2, 2], [2, 3], [2, 6], [2, 7], [2, 8], [2, 9]], mutation_rate: float = -1, changeNumbers: bool= False):
     # Initialize the keyboard layout and the 2d array of the keyboard layout
@@ -341,4 +319,24 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     print("-"*20)
 
 
-geneticAlgorithm(population_size=10, generations=100, mutation_rate=0.1) # Run the genetic algorithm to find the optimal keyboard layout
+# the keyboard tensor with shift, also an important global variable
+keyboard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], list("~!@#$%^&*()_+")],
+            [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],
+            [list("asdfghjkl;'"), list("ASDFGHJKL:\"")],
+            [list("zxcvbnm,./"), list("ZXCVBNM<>?")]]
+
+dvorakBoard = [[['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '[', ']'], list("~!@#$%^&*(){}")],
+                [list("',.pyfgcrl/="), list('"<.PYFGCRL?+')],
+                [list("aoeuidhtns-"), list("AOEUIDHTNS_")],
+                [list(";qjkxbmwvz"), list(":QJKXBMWVZ")]]
+dvorakHomeKeys = list("aoeuhtns")
+# Important global variables
+bitLearning = 5
+
+printBoard(keyboard, shift=True) # Prints the entire QWERTY keyboard
+printBoard(dvorakBoard, shift=True) # Prints the entire Dvorak keyboard
+
+# Calculate the distance of the datatext for both QWERTY and Dvorak
+print(calcDistance(board=keyboard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False))
+print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDatasets(), debug=False)) # Dvorak is better than QWERTY, lets see if we can improve it further!!!
+geneticAlgorithm(population_size=1000, generations=1000, mutation_rate=0.01) # Run the genetic algorithm to find the optimal keyboard layout
