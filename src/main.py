@@ -1,7 +1,7 @@
 """
 @author: Saksham Goel
 @description: Creates the optimal keyboard layout for a given text.
-@version: 0.1
+@version: 1.0
 @date: 2024-05-11
 """
 
@@ -142,7 +142,7 @@ print(calcDistance(board=dvorakBoard, home_keys=dvorakHomeKeys, text=readDataset
 
 
 # Creates a random keyboard layout based on the given parameters
-def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]], home_keys_cordinates: list = [[2, 0], [2, 1], [2, 2], [2, 3], [2, 6], [2, 7], [2, 8], [2, 9]], mutation_rate: float = -1):
+def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], keyboard: list = [[list("`1234567890-="), list("~!@#$%^&*()_+")], [list("qwertyuiop[]\\"), list("QWERTYUIOP{}|")],[list("asdfghjkl;'"), list("ASDFGHJKL:\"")], [list("zxcvbnm,./"), list("ZXCVBNM<>?")]], home_keys_cordinates: list = [[2, 0], [2, 1], [2, 2], [2, 3], [2, 6], [2, 7], [2, 8], [2, 9]], mutation_rate: float = -1, changeNumbers: bool= False):
     # Initialize the keyboard layout and the 2d array of the keyboard layout
     board = [[], [], []]
     keyboard_2d = []
@@ -236,6 +236,14 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
         for _ in range(len(shape)):
             x2 = random.randint(0, _)
             home_keys_cordinates.append([x2, random.randint(0, shape[x2] - 1)])
+    elif changeNumbers is False:
+        numRow = (tuple("1234567890"), tuple("!@#$%^&*()"))
+        for i in range(10):
+            keyboard_2d.remove(numRow[0][i])
+            keyboard_2d_shift.remove(numRow[1][i])
+        for i in range(9, -1, -1):
+            keyboard_2d.insert(1, numRow[0][i])
+            keyboard_2d_shift.insert(1, numRow[1][i])
 
     # Update the shape of the board
     board[1] = shape.copy()
@@ -260,7 +268,7 @@ def createRandomKeyboard(shiftedOptimal: bool = False, shapeOptimal: bool = Fals
 
 
 # Mutates the given keyboard layout based on the mutation rate
-def mutateKeyboard(board, mutation_rate: float = 0.05, mutateShape: bool = False, mutateShifted: bool = False):
+def mutateKeyboard(board, mutation_rate: float = 0.05, mutateShape: bool = False, mutateShifted: bool = False, changeNumbers: bool = False):
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
     # Convert home keys cordinates to home keys of the keyboard layout
     home_keys_cordinates = []
@@ -277,12 +285,12 @@ def mutateKeyboard(board, mutation_rate: float = 0.05, mutateShape: bool = False
                 a = row
                 home_keys_cordinates.append([a, b])
 
-    return createRandomKeyboard(keyboard=board[0], shape=board[1], home_keys_cordinates=home_keys_cordinates, mutation_rate=mutation_rate, shapeOptimal=mutateShape, shiftedOptimal=mutateShifted) # Return new the mutated keyboard layout
+    return createRandomKeyboard(keyboard=board[0], shape=board[1], home_keys_cordinates=home_keys_cordinates, mutation_rate=mutation_rate, shapeOptimal=mutateShape, shiftedOptimal=mutateShifted, changeNumbers=changeNumbers) # Return new the mutated keyboard layout
 
 
 # The genetic algorithm to find the optimal keyboard layout
 # TODO: Add penalty for 2 hands not alternating. - Complicated but possible
-def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.05): # TODO: Implement the genetic algorithm soon
+def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, shape: list=[13, 13, 11, 10], population_size: int = 10, generations: int = 10, mutation_rate: float = 0.05, changeNumbers: bool = False): # TODO: Implement the genetic algorithm soon
     population = []
     performance = [] # The lower cost in distance the better the performance
     mutation_rate = round(mutation_rate, bitLearning) # Round the mutation rate to the bit learning value to adjust precision
@@ -293,7 +301,7 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
 
     # Create and print the initial population based on selected parameters
     for _ in range(population_size):
-        population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape))
+        population.append(createRandomKeyboard(shiftedOptimal=shiftedOptimal, shapeOptimal=shapeOptimal, shape=shape, changeNumbers=changeNumbers))
         printBoard(population[-1][0], shift=True)
 
     # Initial test of the population
@@ -312,7 +320,7 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     for generation in range(generations):
         print("Generation #", generation + 1)
         for boardNumber in range(len(population)):
-            population[boardNumber] = mutateKeyboard(bestBoard, mutation_rate=mutation_rate)
+            population[boardNumber] = mutateKeyboard(bestBoard, mutation_rate=mutation_rate, mutateShifted=shiftedOptimal, mutateShape=shapeOptimal, changeNumbers=changeNumbers)
             # printBoard(population[boardNumber][0], shift=True)
         print("Performance")
         for boardNumber in range(len(population)):
@@ -333,4 +341,4 @@ def geneticAlgorithm(shiftedOptimal: bool = False, shapeOptimal: bool = False, s
     print("-"*20)
 
 
-geneticAlgorithm(population_size=50, generations=100, mutation_rate=0.1) # Run the genetic algorithm to find the optimal keyboard layout
+geneticAlgorithm(population_size=10, generations=100, mutation_rate=0.1) # Run the genetic algorithm to find the optimal keyboard layout
